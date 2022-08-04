@@ -46,7 +46,7 @@ def create_job(
             image="bash",
             labels={**job_labels},
             cmds=["bash", "-c"],
-            arguments=["echo test"],
+            arguments=["sleep 300"],
             volumes=[
                 Volume(name="test-dir", configs={"hostPath": {"path": "/mnt/dags"}}),
             ],
