@@ -26,7 +26,7 @@ def create_job(
         resources={
             "request_cpu": "100m",
             "limit_cpu": "1",
-            "request_memory": "256Mb",
+            "request_memory": "256Mi",
             "limit_memory": "1Gi",
         },
 ):
