@@ -43,7 +43,7 @@ def create_job(
             name=job_name,
             namespace=default_ns,
             resources=resources,
-            image="alpine",
+            image="bash",
             labels={**job_labels},
             cmds=["bash", "-c"],
             arguments=["echo test"],
