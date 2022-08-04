@@ -6,7 +6,7 @@ from datetime import timedelta, datetime
 
 from airflow.utils.dates import days_ago
 
-default_ns = "default"
+default_ns = "airflow-cluster"
 default_args = {
     'start_date': days_ago(1),
     'retries': 0,
