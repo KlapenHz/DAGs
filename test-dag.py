@@ -3,6 +3,7 @@ from airflow.contrib.kubernetes.volume import Volume
 from airflow.contrib.kubernetes.volume_mount import VolumeMount
 from airflow.models import DAG
 from datetime import timedelta, datetime
+from kubernetes.client import models as k8s
 
 from airflow.utils.dates import days_ago
 
@@ -51,8 +52,23 @@ def create_job(
                 Volume(name="test-dir", configs={"hostPath": {"path": "/mnt/dags"}}),
             ],
             volume_mounts=[
-                VolumeMount("test-dir", mount_path="/mountDags", sub_path=None, read_only=True),
-            ]
+                VolumeMount("test-dir", mount_path="/myInsideDags", sub_path=None, read_only=True),
+            ],
+            #volume=k8s.V1ConfigMapVolumeSource(name="configtest", items=[V1KeyToPath(key='bar', path='foo')]),
+            code_volume=k8s.V1Volume(
+                name="code-source-volume",
+                config_map=k8s.V1ConfigMapVolumeSource(
+                    name="code-source-volume",
+                    optional=False,
+                    items=[k8s.V1KeyToPath(key="code", path="code.b64")],
+                ),
+            ),
+            code_dst_volume = k8s.V1Volume(name="code-volume", empty_dir={}),
+            code_dst_volume_mount = k8s.V1VolumeMount(mount_path="/code", name="code-volume"),
+
+            code_volume_mount = k8s.V1VolumeMount(
+                mount_path="/code-zipped", name="code-source-volume", read_only=False
+            ),
         )
 
 
