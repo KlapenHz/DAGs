@@ -50,11 +50,13 @@ def create_job(
             arguments=["sleep 300"],
             volumes=[
                 Volume(name="test-dir", configs={"hostPath": {"path": "/mnt/dags"}}),
+                k8s.V1Volume(name="code-volume", empty_dir={}),
             ],
             volume_mounts=[
                 VolumeMount("test-dir", mount_path="/myInsideDags", sub_path=None, read_only=True),
+                k8s.V1VolumeMount(mount_path="/code", name="code-volume"),
             ],
-            #volume=k8s.V1ConfigMapVolumeSource(name="configtest", items=[V1KeyToPath(key='bar', path='foo')]),
+            # volume=k8s.V1ConfigMapVolumeSource(name="configtest", items=[V1KeyToPath(key='bar', path='foo')]),
             code_volume=k8s.V1Volume(
                 name="code-source-volume",
                 config_map=k8s.V1ConfigMapVolumeSource(
@@ -63,10 +65,10 @@ def create_job(
                     items=[k8s.V1KeyToPath(key="code", path="code.b64")],
                 ),
             ),
-            code_dst_volume = k8s.V1Volume(name="code-volume", empty_dir={}),
-            code_dst_volume_mount = k8s.V1VolumeMount(mount_path="/code", name="code-volume"),
+            #code_dst_volume=k8s.V1Volume(name="code-volume", empty_dir={}),
+            #code_dst_volume_mount=k8s.V1VolumeMount(mount_path="/code", name="code-volume"),
 
-            code_volume_mount = k8s.V1VolumeMount(
+            code_volume_mount=k8s.V1VolumeMount(
                 mount_path="/code-zipped", name="code-source-volume", read_only=False
             ),
         )
