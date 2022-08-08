@@ -1,3 +1,4 @@
+# from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import # for airflow > 2.0
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow.contrib.kubernetes.volume import Volume
 from airflow.contrib.kubernetes.volume_mount import VolumeMount
@@ -45,12 +46,9 @@ def create_job(
             items=[k8s.V1KeyToPath(key="code", path="code.b64")],
         ),
     ),
-    code_dst_volume = k8s.V1Volume(name="code-volume", empty_dir={}),
-    code_dst_volume_mount = k8s.V1VolumeMount(mount_path="/code", name="code-volume"),
-
-    code_volume_mount = k8s.V1VolumeMount(
-        mount_path="/code-zipped", name="code-source-volume", read_only=False
-    ),
+    #code_dst_volume = k8s.V1Volume(name="code-volume", empty_dir={}),
+    #code_dst_volume_mount = k8s.V1VolumeMount(mount_path="/code", name="code-volume"),
+    #code_volume_mount = k8s.V1VolumeMount(mount_path="/code-zipped", name="code-source-volume", read_only=False),
 
     with create_dag(schedule):
         KubernetesPodOperator(
@@ -63,17 +61,22 @@ def create_job(
             labels={**job_labels},
             cmds=["bash", "-c"],
             arguments=["sleep 300"],
-            #volumes=[
-            #    Volume(name="test-dir", configs={"hostPath": {"path": "/mnt/dags"}}),
-            #    #k8s.V1Volume(name="code-volume", empty_dir={}),
-            #],
-            #volume_mounts=[
-            #    VolumeMount("test-dir", mount_path="/myInsideDags", sub_path=None, read_only=True),
-            #    #k8s.V1VolumeMount(mount_path="/code", name="code-volume"),
-            #],
+            # volume_mounts=airflow_volume_mounts,
+            volumes=[
+                Volume(name="test-dir", configs={"hostPath": {"path": "/mnt/dags"}}),
+                Volume(name="files-volume", empty_dir={}),
+            ],
+            volume_mounts=[
+                VolumeMount("test-dir", mount_path="/myInsideDags", sub_path=None, read_only=True),
+                VolumeMount(mount_path="/files", name="files-volume"),
+            ],
             # volume=k8s.V1ConfigMapVolumeSource(name="configtest", items=[V1KeyToPath(key='bar', path='foo')]),
-            volumes=[code_volume, code_dst_volume],
-            volume_mounts=[code_volume_mount, code_dst_volume_mount],
+            #volumes=[code_volume, k8s.V1Volume(name="code-volume", empty_dir={})],
+            #volume_mounts=[code_volume_mount, code_dst_volume_mount],
+            #volume_mounts=[
+            #    VolumeMount(mount_path="/code-zipped", name="code-source-volume", read_only=False),
+            #    VolumeMount(mount_path="/code", name="code-volume"),
+            #],
         )
 
 
