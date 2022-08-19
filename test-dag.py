@@ -4,7 +4,8 @@ from airflow.contrib.kubernetes.volume import Volume
 from airflow.contrib.kubernetes.volume_mount import VolumeMount
 from airflow.models import DAG
 from datetime import timedelta, datetime
-from kubernetes.client import models as k8s
+from airflow.kubernetes.secret import Secret
+# from kubernetes.client import models as k8s # only for airflow 2.x
 
 from airflow.utils.dates import days_ago
 
@@ -14,6 +15,7 @@ default_args = {
     'retries': 0,
     'retries_delay': timedelta(seconds=60),
 }
+secret_file = Secret('volume', '/secret-file.txt', 'my_secret', 'my-key')
 
 
 def create_dag(schedule):
@@ -59,16 +61,17 @@ def create_job(
             resources=resources,
             image="bash",
             labels={**job_labels},
+            secrets=[secret_file],
             cmds=["bash", "-c"],
             arguments=["sleep 300"],
             # volume_mounts=airflow_volume_mounts,
             volumes=[
                 Volume(name="test-dir", configs={"hostPath": {"path": "/mnt/dags"}}),
-                Volume(name="files-volume", empty_dir={}),
+                #Volume(name="files-volume", empty_dir={}),
             ],
             volume_mounts=[
                 VolumeMount("test-dir", mount_path="/myInsideDags", sub_path=None, read_only=True),
-                VolumeMount(mount_path="/files", name="files-volume"),
+                #VolumeMount(mount_path="/files", name="files-volume"),
             ],
             # volume=k8s.V1ConfigMapVolumeSource(name="configtest", items=[V1KeyToPath(key='bar', path='foo')]),
             #volumes=[code_volume, k8s.V1Volume(name="code-volume", empty_dir={})],
