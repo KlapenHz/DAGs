@@ -13,7 +13,7 @@ default_args = {
     'retries': 0,
     'retries_delay': timedelta(seconds=60),
 }
-secret_file = Secret('volume', '/secret-file.txt', 'my_secret', 'my-key')
+secret_file = Secret('volume', '/secret-file.txt', 'mysecret', 'someusername')
 
 
 def create_dag(schedule):
